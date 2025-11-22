@@ -1,0 +1,6 @@
+**/__pycache__/**
+**.pyc
+
+2_Optical_Flow/videos/**
+3_Visual_Odometry/images/**
+4_Bag_of_Visual_Words/image_database/**
