@@ -17,7 +17,7 @@ LOAD_SECTION_IDX = 1
 SKIP_FRAME_INTERVAL = 2  # Process every N frames
 
 USE_3D_SUBPLOT = False  # Set to False to show 3D points in BEV (2D top view) instead
-SHOW_ONLY_INLIER_MATCHES = True  # Show only inlier feature matches in the visualization
+SHOW_ONLY_INLIER_MATCHES = False  # Show only inlier feature matches in the visualization
 
 
 # Load camera projection matrix (KITTI format)
