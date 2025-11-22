@@ -184,37 +184,45 @@ def __show_images_plt(images, titles, *args, **kwargs):
         plt.axis('off')
     plt.show()
 
-from scipy.cluster.vq import _asarray_validated, _kpoints, _kmeans, check_random_state
+try:
+    from scipy.cluster.vq import _asarray_validated, _kpoints, _kmeans, check_random_state
+except ImportError:
+    pass
+
 def kmeans(obs, k_or_guess, iter=20, thresh=1e-5, check_finite=True,
            *, seed=None):
-    obs = _asarray_validated(obs, check_finite=check_finite)
-    if iter < 1:
-        raise ValueError("iter must be at least 1, got %s" % iter)
+    try:
+        obs = _asarray_validated(obs, check_finite=check_finite)
+        if iter < 1:
+            raise ValueError("iter must be at least 1, got %s" % iter)
 
-    # Determine whether a count (scalar) or an initial guess (array) was passed.
-    if not np.isscalar(k_or_guess):
-        guess = _asarray_validated(k_or_guess, check_finite=check_finite)
-        if guess.size < 1:
-            raise ValueError("Asked for 0 clusters. Initial book was %s" %
-                             guess)
-        return _kmeans(obs, guess, thresh=thresh)
+        # Determine whether a count (scalar) or an initial guess (array) was passed.
+        if not np.isscalar(k_or_guess):
+            guess = _asarray_validated(k_or_guess, check_finite=check_finite)
+            if guess.size < 1:
+                raise ValueError("Asked for 0 clusters. Initial book was %s" %
+                                guess)
+            return _kmeans(obs, guess, thresh=thresh)
 
-    # k_or_guess is a scalar, now verify that it's an integer
-    k = int(k_or_guess)
-    if k != k_or_guess:
-        raise ValueError("If k_or_guess is a scalar, it must be an integer.")
-    if k < 1:
-        raise ValueError("Asked for %d clusters." % k)
+        # k_or_guess is a scalar, now verify that it's an integer
+        k = int(k_or_guess)
+        if k != k_or_guess:
+            raise ValueError("If k_or_guess is a scalar, it must be an integer.")
+        if k < 1:
+            raise ValueError("Asked for %d clusters." % k)
 
-    rng = check_random_state(seed)
+        rng = check_random_state(seed)
 
-    # initialize best distance value to a large value
-    best_dist = np.inf
-    for i in tqdm.tqdm(range(iter)):
-        # the initial code book is randomly selected from observations
-        guess = _kpoints(obs, k, rng)
-        book, dist = _kmeans(obs, guess, thresh=thresh)
-        if dist < best_dist:
-            best_book = book
-            best_dist = dist
-    return best_book, best_dist
+        # initialize best distance value to a large value
+        best_dist = np.inf
+        for i in tqdm.tqdm(range(iter)):
+            # the initial code book is randomly selected from observations
+            guess = _kpoints(obs, k, rng)
+            book, dist = _kmeans(obs, guess, thresh=thresh)
+            if dist < best_dist:
+                best_book = book
+                best_dist = dist
+        return best_book, best_dist
+    except Exception as e:
+        from scipy.cluster.vq import kmeans as scipy_kmeans
+        return scipy_kmeans(obs, k_or_guess, iter=iter, thresh=thresh, check_finite=check_finite, seed=seed)
